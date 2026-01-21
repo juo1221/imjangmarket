@@ -1,0 +1,16 @@
+
+# Gradle 임시 파일
+.gradle/
+build/
+
+# IDE 설정
+.idea/
+*.iml
+
+# 로그 및 에러 파일
+*.log
+.kotlin/
+
+# 민감한 정보 (이전에 말씀드린 DB 정보 파일들)
+gradle.properties
+application.properties
