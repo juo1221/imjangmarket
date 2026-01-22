@@ -27,6 +27,7 @@ extra["jooq.version"] = jooqVersion
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("org.postgresql:postgresql")
@@ -38,6 +39,17 @@ dependencies {
     "jooqGenerator"("org.postgresql:postgresql:42.7.2")
     "jooqGenerator"("org.jooq:jooq-meta:${jooqVersion}")
     "jooqGenerator"("org.jooq:jooq-codegen:${jooqVersion}")
+    // Spring Security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // JWT 관련 라이브러리 (0.12.x 버전 기준)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
+    // 테스트를 위한 Security 도움 도구
+    testImplementation("org.springframework.security:spring-security-test")
+
 }
 
 jooq {
