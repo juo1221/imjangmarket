@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class JwtProvider(
-     @param:Value("\${jwt.secret}") private val secretKey: String
+     @param:Value($$"${jwt.secret}") private val secretKey: String
 ) {
      private val key = Keys.hmacShaKeyFor(secretKey.toByteArray())
 
