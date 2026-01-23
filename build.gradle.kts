@@ -48,10 +48,13 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
 
     // 테스트를 위한 Security 도움 도구
+    // 1. 스프링 부트 테스트 통합 패키지 (JUnit5, AssertJ, Mockito 등 포함)
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // 2. 스프링 시큐리티 테스트 도구 (인증/인가 흐름 검증에 필수)
     testImplementation("org.springframework.security:spring-security-test")
-
+    // 4. 코틀린용 테스트 지원
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 }
-
 jooq {
     version.set(jooqVersion)
     configurations {
@@ -94,4 +97,8 @@ sourceSets {
     main {
         kotlin { srcDir("build/generated-sources/jooq") }
     }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform() // JUnit 5 테스트 엔진을 사용하도록 명시
 }
