@@ -5,8 +5,9 @@ import org.springframework.http.HttpStatus
 /**
  * 임장 보고서 관련 예외
  */
-class ReportAlreadyExistsException(message: String = "이미 해당 사건에 대해 작성된 보고서가 존재합니다.")
-     : BusinessException(message, HttpStatus.CONFLICT)
+sealed class ReportException(message: String) : BusinessException(message) {
+     class AlreadyExists : ReportException("보고서가 이미 존재합니다.")
+     class InvalidFormat : ReportException("올바르지 않은 사건번호 형식입니다.")
+     class AccessDenied : ReportException("보고서에 대한 접근 권한이 없습니다.")
+}
 
-class InvalidCaseNumberException(message: String = "올바르지 않은 사건번호 형식입니다.")
-     : BusinessException(message, HttpStatus.BAD_REQUEST)

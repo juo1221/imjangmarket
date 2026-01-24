@@ -1,11 +1,11 @@
 package com.example.imjangmarket.domain.report.controller
 
+import com.example.imjangmarket.domain.report.dto.ReportCreateRes
 import com.example.imjangmarket.domain.report.dto.ReportRequest
 import com.example.imjangmarket.domain.report.service.ReportService
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import com.example.imjangmarket.global.api.ApiResponse
+import com.example.imjangmarket.global.result.toApiResponse
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -20,10 +20,5 @@ class ReportController(
      fun createReport(
           @RequestBody request: ReportRequest,
           @AuthenticationPrincipal userId: String
-     ): ResponseEntity<String>  {
-          reportService.createReport(request, userId)
-          return ResponseEntity
-               .status(HttpStatus.CREATED)
-               .body("성공적으로 보고서가 등록되었습니다.")
-     }
+     ): ApiResponse<ReportCreateRes> = reportService.createReport(request, userId).toApiResponse()
 }
