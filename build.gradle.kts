@@ -54,6 +54,8 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     // 4. 코틀린용 테스트 지원
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    // Jackson Kotlin Module (필수)
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
 jooq {
     version.set(jooqVersion)
