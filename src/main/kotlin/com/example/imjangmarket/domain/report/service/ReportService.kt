@@ -4,10 +4,12 @@ import com.example.imjangmarket.domain.report.dto.ReportRequest
 import com.example.imjangmarket.domain.report.repository.ReportRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionOperations
 
 @Service
 class ReportService(
      private val reportRepository: ReportRepository,
+     private val transaction: TransactionOperations,
      private val reportValidator: ReportValidator
 ) {
      /**
@@ -17,6 +19,8 @@ class ReportService(
       */
      fun createReport(request: ReportRequest, userId: String) {
           reportValidator.validateAll(request, userId)
-          reportRepository.save(request, userId)
+          transaction.execute {
+               reportRepository.save(request, userId)
+          }
      }
 }

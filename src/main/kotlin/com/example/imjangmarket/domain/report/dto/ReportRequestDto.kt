@@ -1,8 +1,6 @@
 package com.example.imjangmarket.domain.report.dto
 
 
-import java.time.LocalDateTime
-
 /**
  * 임장 보고서 생성을 위한 전체 요청 객체
  */
