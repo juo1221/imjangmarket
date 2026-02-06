@@ -51,4 +51,22 @@ class ReportRepository(
                     ?.id ?: throw RuntimeException("저장 실패")
 
      }
+     /**
+      * 보고서 업데이트
+      */
+     fun update(request: ReportRequest, userId: String): Int {
+          val checklistJson = objectMapper.writeValueAsString(request.checklist)
+          return dsl.update(t)
+               .set(t.ADDRESS, request.address)
+               .set(t.CHECKLIST, JSONB.valueOf(checklistJson)) // 전체 체크리스트를 JSONB로 저장
+               .set(t.OVERALL_REVIEW, request.overallReview)
+               .set(t.CAUTION_NOTES, request.cautionNotes)
+               .set(t.PHOTO_URLS, request.photoUrls.toTypedArray())
+               .set(t.CREATED_AT, LocalDateTime.now())
+               .set(t.UPDATED_AT, LocalDateTime.now())
+               .returning(t.ID) // [핵심] 생성된 ID를 반환하도록 지정
+               .fetchOne()      // 한 건의 레코드를 가져옴
+               ?.id ?: throw RuntimeException("수정 실패")
+
+     }
 }

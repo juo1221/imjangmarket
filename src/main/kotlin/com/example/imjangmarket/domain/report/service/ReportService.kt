@@ -2,10 +2,12 @@ package com.example.imjangmarket.domain.report.service
 
 import com.example.imjangmarket.domain.report.dto.ReportCreateRes
 import com.example.imjangmarket.domain.report.dto.ReportRequest
+import com.example.imjangmarket.domain.report.dto.ReportUpdateRes
 import com.example.imjangmarket.domain.report.repository.ReportRepository
 import com.example.imjangmarket.global.exception.BaseError
 import com.example.imjangmarket.global.result.ServiceResult
 import com.example.imjangmarket.global.utils.executeWithResult
+import jdk.internal.org.jline.utils.Log.error
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionOperations
@@ -30,6 +32,10 @@ class ReportService(
                override val code = "003"
                override val msg = "알 수 없는 에러입니다."
           }
+          object NotExists : ReportError {
+               override val code = "002"
+               override val msg = "이미 삭제된 보고서 입니다."
+          }
      }
 
      /**
@@ -51,6 +57,25 @@ class ReportService(
                } catch (e: DataIntegrityViolationException) {
                     ServiceResult.Failure(ReportError.AlreadyExists)
                } catch (e: Exception) {
+                    error("보고서 생성 중 예상치 못한 시스템 에러 발생: ${e.message}", e)
+                    ServiceResult.Failure(ReportError.UnknownError)
+               }
+          }
+     }
+
+     fun updateReport(request: ReportRequest, userId: String): ServiceResult<ReportUpdateRes> {
+          if (!caseNumberPattern.matches(request.caseNumber)) {
+               return ServiceResult.Failure(ReportError.CaseNumberError)
+          }
+          if (!reportRepository.existsByCaseNumberAndUserId(request.caseNumber, userId)) {
+               return ServiceResult.Failure(ReportError.NotExists)
+          }
+          return tx.executeWithResult { status ->
+               try {
+                    val id = reportRepository.update(request, userId)
+                    ServiceResult.Success(ReportUpdateRes(id))
+               }catch (e: Exception) {
+                    error("보고서 수정 중 예상치 못한 시스템 에러 발생: ${e.message}", e)
                     ServiceResult.Failure(ReportError.UnknownError)
                }
           }
