@@ -1,14 +1,11 @@
 package com.example.imjangmarket.domain.report.service
 
-import com.example.imjangmarket.domain.report.dto.ReportCreateRes
-import com.example.imjangmarket.domain.report.dto.ReportDeleteRes
+import com.example.imjangmarket.domain.report.dto.ReporRes
 import com.example.imjangmarket.domain.report.dto.ReportRequest
-import com.example.imjangmarket.domain.report.dto.ReportUpdateRes
 import com.example.imjangmarket.domain.report.repository.ReportRepository
 import com.example.imjangmarket.global.exception.BaseError
 import com.example.imjangmarket.global.result.ServiceResult
 import com.example.imjangmarket.global.utils.executeWithResult
-import jdk.internal.org.jline.utils.Log.error
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionOperations
@@ -47,7 +44,7 @@ class ReportService(
       * @param request 사용자가 입력한 보고서 데이터
       * @param userId 현재 로그인한 사용자의 ID
       */
-     fun createReport(request: ReportRequest, userId: String): ServiceResult<ReportCreateRes> {
+     fun createReport(request: ReportRequest, userId: String): ServiceResult<ReporRes> {
           if (!caseNumberPattern.matches(request.caseNumber)) {
                return ServiceResult.Failure(ReportError.CaseNumberError)
           }
@@ -57,7 +54,7 @@ class ReportService(
           return tx.executeWithResult { status ->
                try {
                     val id = reportRepository.save(request, userId)
-                    ServiceResult.Success(ReportCreateRes(id))
+                    ServiceResult.Success(ReporRes(id))
                } catch (e: DataIntegrityViolationException) {
                     ServiceResult.Failure(ReportError.AlreadyExists)
                } catch (e: Exception) {
@@ -66,7 +63,7 @@ class ReportService(
           }
      }
 
-     fun updateReport(request: ReportRequest, userId: String): ServiceResult<ReportUpdateRes> {
+     fun updateReport(request: ReportRequest, userId: String): ServiceResult<ReporRes> {
           if (!caseNumberPattern.matches(request.caseNumber)) {
                return ServiceResult.Failure(ReportError.CaseNumberError)
           }
@@ -76,18 +73,18 @@ class ReportService(
           return tx.executeWithResult { status ->
                try {
                     val id = reportRepository.update(request, userId)
-                    ServiceResult.Success(ReportUpdateRes(id))
+                    ServiceResult.Success(ReporRes(id))
                } catch (e: Exception) {
                     ServiceResult.Failure(ReportError.UnknownError)
                }
           }
      }
 
-     fun deleteReport(reportId: String): ServiceResult<ReportDeleteRes> {
+     fun deleteReport(reportId: String): ServiceResult<ReporRes> {
           return tx.executeWithResult { status ->
                try {
                     val id = reportRepository.delete(reportId.toLong())
-                    ServiceResult.Success(ReportDeleteRes(id))
+                    ServiceResult.Success(ReporRes(id))
                } catch (e: Exception) {
                     ServiceResult.Failure(ReportError.UnknownError)
                }

@@ -1,6 +1,6 @@
 package com.example.imjangmarket.domain.report.controller
 
-import com.example.imjangmarket.domain.report.dto.ReportCreateRes
+import com.example.imjangmarket.domain.report.dto.ReporRes
 import com.example.imjangmarket.domain.report.dto.ReportDeleteRes
 import com.example.imjangmarket.domain.report.dto.ReportRequest
 import com.example.imjangmarket.domain.report.dto.ReportUpdateRes
@@ -22,7 +22,7 @@ class ReportController(
      fun createReport(
           @RequestBody request: ReportRequest,
           @AuthenticationPrincipal userId: String
-     ): ApiResponse<ReportCreateRes> = reportService.createReport(request, userId).toApiResponse()
+     ): ApiResponse<ReporRes> = reportService.createReport(request, userId).toApiResponse()
 
      @PostMapping("/ep")
      fun updateReport(

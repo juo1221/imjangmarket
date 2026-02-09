@@ -1,7 +1,7 @@
 package com.example.imjangmarket.domain.report.repository
 
 import com.example.imjangmarket.domain.report.dto.ReportRequest
-import com.example.imjangmarket.jooq.tables.references.IMJANG_REPORT
+import com.example.imjangmarket.jooq.tables.references.REPORT
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.jooq.DSLContext
@@ -13,12 +13,9 @@ import java.time.LocalDateTime
 class ReportRepository(
      private val dsl: DSLContext
 ) {
-     // jOOQ가 생성한 테이블 객체 (실제 테이블명에 맞춰 수정 필요)
-     private val t = IMJANG_REPORT
-
+     private val t = REPORT
      // Kotlin 객체 <-> JSON 변환을 위한 매퍼
      private val objectMapper = ObjectMapper().registerKotlinModule()
-
      /**
       * 특정 유저가 해당 사건번호로 작성한 보고서가 존재하는지 효율적으로 확인합니다.
       */
