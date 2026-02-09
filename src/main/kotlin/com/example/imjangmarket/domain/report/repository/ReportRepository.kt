@@ -69,4 +69,13 @@ class ReportRepository(
                ?.id ?: throw RuntimeException("수정 실패")
 
      }
+     /**
+      * 보고서 삭제
+      */
+     fun delete(reportId: Long): Int {
+          return dsl
+               .deleteFrom(t)
+               .where(t.CASE_NUMBER.eq("$reportId"))
+               .execute()
+     }
 }

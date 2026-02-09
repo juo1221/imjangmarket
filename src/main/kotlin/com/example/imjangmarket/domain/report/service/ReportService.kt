@@ -1,6 +1,7 @@
 package com.example.imjangmarket.domain.report.service
 
 import com.example.imjangmarket.domain.report.dto.ReportCreateRes
+import com.example.imjangmarket.domain.report.dto.ReportDeleteRes
 import com.example.imjangmarket.domain.report.dto.ReportRequest
 import com.example.imjangmarket.domain.report.dto.ReportUpdateRes
 import com.example.imjangmarket.domain.report.repository.ReportRepository
@@ -24,14 +25,17 @@ class ReportService(
                override val code = "001"
                override val msg = "사건번호 형식이맞지 않습니다."
           }
+
           object AlreadyExists : ReportError {
                override val code = "002"
                override val msg = "이미 기록한 사건번호 입니다. "
           }
+
           object UnknownError : ReportError {
                override val code = "003"
                override val msg = "알 수 없는 에러입니다."
           }
+
           object NotExists : ReportError {
                override val code = "002"
                override val msg = "이미 삭제된 보고서 입니다."
@@ -57,7 +61,6 @@ class ReportService(
                } catch (e: DataIntegrityViolationException) {
                     ServiceResult.Failure(ReportError.AlreadyExists)
                } catch (e: Exception) {
-                    error("보고서 생성 중 예상치 못한 시스템 에러 발생: ${e.message}", e)
                     ServiceResult.Failure(ReportError.UnknownError)
                }
           }
@@ -74,10 +77,21 @@ class ReportService(
                try {
                     val id = reportRepository.update(request, userId)
                     ServiceResult.Success(ReportUpdateRes(id))
-               }catch (e: Exception) {
-                    error("보고서 수정 중 예상치 못한 시스템 에러 발생: ${e.message}", e)
+               } catch (e: Exception) {
                     ServiceResult.Failure(ReportError.UnknownError)
                }
           }
      }
+
+     fun deleteReport(reportId: String): ServiceResult<ReportDeleteRes> {
+          return tx.executeWithResult { status ->
+               try {
+                    val id = reportRepository.delete(reportId.toLong())
+                    ServiceResult.Success(ReportDeleteRes(id))
+               } catch (e: Exception) {
+                    ServiceResult.Failure(ReportError.UnknownError)
+               }
+          }
+     }
+
 }

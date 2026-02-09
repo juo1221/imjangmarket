@@ -8,3 +8,6 @@ data class ReportCreateRes(
 data class ReportUpdateRes(
      val id: Int
 )
+data class ReportDeleteRes(
+     val id: Int
+)

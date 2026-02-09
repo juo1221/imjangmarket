@@ -1,6 +1,7 @@
 package com.example.imjangmarket.domain.report.controller
 
 import com.example.imjangmarket.domain.report.dto.ReportCreateRes
+import com.example.imjangmarket.domain.report.dto.ReportDeleteRes
 import com.example.imjangmarket.domain.report.dto.ReportRequest
 import com.example.imjangmarket.domain.report.dto.ReportUpdateRes
 import com.example.imjangmarket.domain.report.service.ReportService
@@ -29,9 +30,8 @@ class ReportController(
           @AuthenticationPrincipal userId: String
      ): ApiResponse<ReportUpdateRes> = reportService.updateReport(request, userId).toApiResponse()
 
-     @PostMapping()
+     @PostMapping("/dp")
      fun deleteReport(
-          @RequestBody request: ReportRequest,
-          @AuthenticationPrincipal userId: String
-     ): ApiResponse<ReportDeleteRes> = reportService.deleteReport(request, userId).toApiResponse()
+          @AuthenticationPrincipal reportId: String
+     ): ApiResponse<ReportDeleteRes> = reportService.deleteReport(reportId).toApiResponse()
 }
