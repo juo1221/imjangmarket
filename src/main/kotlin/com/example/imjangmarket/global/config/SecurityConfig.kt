@@ -26,7 +26,12 @@ class SecurityConfig(
                .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
                .authorizeHttpRequests { auth ->
                     auth
-                         .requestMatchers("/api/auth/**").permitAll() // 회원가입, 로그인은 허용
+                         .requestMatchers(
+                              "/api/auth/**",
+                              "/v3/api-docs/**",
+                              "/swagger-ui/**",
+                              "/swagger-ui.html"
+                         ).permitAll() // 회원가입, 로그인은 허용
                          .requestMatchers("/api/admin/**").hasRole("ADMIN")// 관리자 전용
                          .anyRequest().authenticated() // 그 외 모든 요청은 로그인이 필요함
                }.addFilterBefore(

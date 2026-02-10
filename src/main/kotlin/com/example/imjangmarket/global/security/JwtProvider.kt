@@ -22,18 +22,19 @@ class JwtProvider(
      val accessTokenValidTime = 1000L * 60 * 30 // 30분
      val refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7 // 7일
 
-     fun createAccessToken(userId: String, role: String): String {
-          return createToken(userId, role, accessTokenValidTime)
+     fun createAccessToken(id: Int, userId: String, role: String): String {
+          return createToken(id, userId, role, accessTokenValidTime)
      }
 
-     fun createRefreshToken(userId: String, role: String): String {
-          return createToken(userId, role, refreshTokenValidTime)
+     fun createRefreshToken(id: Int, userId: String, role: String): String {
+          return createToken(id, userId, role, refreshTokenValidTime)
      }
 
-     private fun createToken(userId: String, role: String, validTime: Long): String {
+     private fun createToken(id: Int, userId: String, role: String, validTime: Long): String {
           val now = Date()
           return Jwts.builder()
                .subject(userId)
+               .claim("memberId", id)
                .claim("role", role)
                .issuedAt(now)
                .expiration(Date(now.time + validTime))
@@ -54,6 +55,10 @@ class JwtProvider(
       * request에서 accessToken 추출
       */
      fun resolveToken(request: HttpServletRequest): String? {
+          val bearerToken = request.getHeader("Authorization")
+          if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+               return bearerToken.substring(7)
+          }
           val cookies = request.cookies
           return cookies?.find { it.name == "accessToken" }?.value
      }
@@ -76,6 +81,7 @@ class JwtProvider(
       * 유효한 토큰에서 사용자 정보를 꺼내 인증 객체로 변환
       */
      fun getAuthentication(token: String): Authentication {
+          println("token : $token")
           // 토큰에서 클레임(데이터 내용물) 추출
           val claims = Jwts.parser()
                .verifyWith(key)
@@ -83,12 +89,13 @@ class JwtProvider(
                .parseSignedClaims(token)
                .payload
 
+          val memberId = claims["memberId"].toString().toLong()
           val userId = claims.subject
           val role = claims["role"] as String
 
           /*권한리스트*/
           val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
-          val principal = User(userId, "", authorities)
+          val principal = CustomUserDetails(memberId, userId, authorities)
           return UsernamePasswordAuthenticationToken(principal, token, authorities)
      }
 }

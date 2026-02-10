@@ -20,37 +20,34 @@ class AuthService(
      private val jwtProvider: JwtProvider,
      private val transaction: TransactionOperations
 ) {
-private val memberTABLE = MEMBER // jOOQ 생성 클래스
-private val refreshTokenTABLE = REFRESH_TOKEN
-
 fun signup(request: SignupRequest) {
-     val exists = dsl.fetchExists(memberTABLE, memberTABLE.USER_ID.eq(request.userId))
+     val exists = dsl.fetchExists(MEMBER, MEMBER.USER_ID.eq(request.userId))
      if (exists) throw AuthException.DuplicateId()
      val encodedPassword = passwordEncoder.encode(request.password)
      transaction.execute {
-          dsl.insertInto(memberTABLE)
-               .set(memberTABLE.USER_ID, request.userId)
-               .set(memberTABLE.PASSWORD, encodedPassword)
-               .set(memberTABLE.NICKNAME, request.nickname)
-               .set(memberTABLE.ROLE, "USER")
+          dsl.insertInto(MEMBER)
+               .set(MEMBER.USER_ID, request.userId)
+               .set(MEMBER.PASSWORD, encodedPassword)
+               .set(MEMBER.NICKNAME, request.nickname)
+               .set(MEMBER.ROLE, "USER")
                .execute()
      }
 }
 
 fun login(request: LoginRequest): Pair<String, String> {
-     val member = dsl.selectFrom(memberTABLE)
-          .where(memberTABLE.USER_ID.eq(request.userId))
+     val member = dsl.selectFrom(MEMBER)
+          .where(MEMBER.USER_ID.eq(request.userId))
           .fetchOne() ?: throw AuthException.UserNotFound()
-     if (!passwordEncoder.matches(request.password, member.password)) throw RuntimeException("비밀번호가 일치하지 않습니다.")
-     val accessToken = jwtProvider.createAccessToken(member.userId!!, member.role!!)
-     val refreshToken = jwtProvider.createRefreshToken(member.userId!!, member.role!!)
+     if (!passwordEncoder.matches(request.password, member.password)) throw AuthException.InvalidPassword()
+     val accessToken = jwtProvider.createAccessToken(member.id!!, member.userId!!,  member.role!!)
+     val refreshToken = jwtProvider.createRefreshToken(member.id!!,member.userId!!,  member.role!!)
      transaction.execute {
-          dsl.insertInto(refreshTokenTABLE)
-               .set(refreshTokenTABLE.USER_ID, member.userId)
-               .set(refreshTokenTABLE.TOKEN_VALUE, refreshToken)
-               .set(refreshTokenTABLE.EXPIRY_DATE, LocalDateTime.now().plusDays(7))
+          dsl.insertInto(REFRESH_TOKEN)
+               .set(REFRESH_TOKEN.USER_ID, member.userId)
+               .set(REFRESH_TOKEN.TOKEN_VALUE, refreshToken)
+               .set(REFRESH_TOKEN.EXPIRY_DATE, LocalDateTime.now().plusDays(7))
                .onDuplicateKeyUpdate()
-               .set(refreshTokenTABLE.TOKEN_VALUE, refreshToken)
+               .set(REFRESH_TOKEN.TOKEN_VALUE, refreshToken)
                .execute()
      }
      return Pair(accessToken, refreshToken)
@@ -58,8 +55,8 @@ fun login(request: LoginRequest): Pair<String, String> {
 
 fun logout(userId: String) {
      transaction.execute {
-          dsl.deleteFrom(refreshTokenTABLE)
-               .where(refreshTokenTABLE.USER_ID.eq(userId))
+          dsl.deleteFrom(REFRESH_TOKEN)
+               .where(REFRESH_TOKEN.USER_ID.eq(userId))
                .execute()
      }
 }

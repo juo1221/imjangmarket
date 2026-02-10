@@ -27,7 +27,9 @@ class ShopService(
           return if (shop != null) ServiceResult.Success(shop) else ServiceResult.Failure(ShopError.NotExist)
      }
      fun getMyShop(memberId: Long): ServiceResult<ShopRes> {
+          println("memberId : $memberId")
           val shop = shopRepository.findByMemberId(memberId)
+          println("shop : $shop")
           return if (shop != null) ServiceResult.Success(shop) else ServiceResult.Failure(ShopError.NotFound)
      }
 }

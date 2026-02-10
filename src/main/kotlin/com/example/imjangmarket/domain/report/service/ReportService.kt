@@ -80,10 +80,10 @@ class ReportService(
           }
      }
 
-     fun deleteReport(reportId: String): ServiceResult<ReporRes> {
+     fun deleteReport(reportId: Long): ServiceResult<ReporRes> {
           return tx.executeWithResult { status ->
                try {
-                    val id = reportRepository.delete(reportId.toLong())
+                    val id = reportRepository.delete(reportId)
                     ServiceResult.Success(ReporRes(id))
                } catch (e: Exception) {
                     ServiceResult.Failure(ReportError.UnknownError)

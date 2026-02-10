@@ -56,6 +56,10 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     // Jackson Kotlin Module (필수)
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    // 스웨거
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
+    // Kotlin 전용 모듈 (Data Class 등의 직렬화 지원)
+    implementation("org.springdoc:springdoc-openapi-starter-common:2.8.3")
 }
 jooq {
     version.set(jooqVersion)

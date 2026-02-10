@@ -28,7 +28,7 @@ class JwtAuthenticationFilter(
          * 1. login or signup인 경우일때는 pass해야됨.
          * 2. 나머지는 상황에 따라 다음 필터에서 처리하도록
          * */
-
          filterChain.doFilter(request, response)
     }
 }
+
