@@ -22,18 +22,18 @@ class ReportController(
      private val reportService: ReportService
 ) {
      @Operation(summary = "보고서 등록 api")
-     @PostMapping("/cp")
+     @PostMapping("/wp")
      fun createReport(
           @RequestBody request: ReportRequest,
           @AuthenticationPrincipal userDetails: CustomUserDetails
-     ): ApiResponse<ReporRes> = reportService.createReport(request, userDetails.username).toApiResponse()
+     ): ApiResponse<ReporRes> = reportService.createReport(request, userDetails.id).toApiResponse()
 
      @Operation(summary = "보고서 수정 api")
      @PostMapping("/ep")
      fun updateReport(
           @RequestBody request: ReportRequest,
           @AuthenticationPrincipal userDetails: CustomUserDetails
-     ): ApiResponse<ReporRes> = reportService.updateReport(request, userDetails.username).toApiResponse()
+     ): ApiResponse<ReporRes> = reportService.updateReport(request, userDetails.id).toApiResponse()
 
      @Operation(summary = "보고서 삭제 api")
      @PostMapping("/dp")

@@ -3,6 +3,8 @@ package com.example.imjangmarket.domain.report.service
 import com.example.imjangmarket.domain.report.dto.ReporRes
 import com.example.imjangmarket.domain.report.dto.ReportRequest
 import com.example.imjangmarket.domain.report.repository.ReportRepository
+import com.example.imjangmarket.domain.shop.repository.ShopRepository
+import com.example.imjangmarket.domain.shop.service.ShopService
 import com.example.imjangmarket.global.exception.BaseError
 import com.example.imjangmarket.global.result.ServiceResult
 import com.example.imjangmarket.global.utils.executeWithResult
@@ -13,6 +15,7 @@ import org.springframework.transaction.support.TransactionOperations
 @Service
 class ReportService(
      private val reportRepository: ReportRepository,
+     private val shopRepository: ShopRepository,
      private val tx: TransactionOperations
 ) {
      private val caseNumberPattern = Regex("^[0-9]{4}타경[0-9]+$")
@@ -25,54 +28,56 @@ class ReportService(
 
           object AlreadyExists : ReportError {
                override val code = "002"
-               override val msg = "이미 기록한 사건번호 입니다. "
+               override val msg = "동일한 사건번호의 보고서가 이미 있습니다."
           }
 
           object UnknownError : ReportError {
                override val code = "003"
                override val msg = "알 수 없는 에러입니다."
           }
-
-          object NotExists : ReportError {
-               override val code = "002"
-               override val msg = "이미 삭제된 보고서 입니다."
-          }
      }
 
      /**
       * 새로운 임장 보고서를 등록합니다.
       * @param request 사용자가 입력한 보고서 데이터
-      * @param userId 현재 로그인한 사용자의 ID
+      * @param memberRowId 현재 로그인한 사용자의 ID
       */
-     fun createReport(request: ReportRequest, userId: String): ServiceResult<ReporRes> {
+     fun createReport(request: ReportRequest, memberRowId: Long): ServiceResult<ReporRes> {
           if (!caseNumberPattern.matches(request.caseNumber)) {
                return ServiceResult.Failure(ReportError.CaseNumberError)
           }
-          if (reportRepository.existsByCaseNumberAndUserId(request.caseNumber, userId)) {
+          if (reportRepository.existsByCaseNumberAndUserId(request.caseNumber, memberRowId)) {
                return ServiceResult.Failure(ReportError.AlreadyExists)
           }
+          val shopRes = shopRepository.findByMemberId(memberRowId)
+          if(shopRes === null) return ServiceResult.Failure(ShopService.ShopError.NotFound)
           return tx.executeWithResult { status ->
                try {
-                    val id = reportRepository.save(request, userId)
-                    ServiceResult.Success(ReporRes(id))
+                    val id = reportRepository.save(request, memberRowId, shopRes.id)
+                    if (id === null) ServiceResult.Failure(ReportError.AlreadyExists)
+                    else ServiceResult.Success(ReporRes(id))
                } catch (e: DataIntegrityViolationException) {
-                    ServiceResult.Failure(ReportError.AlreadyExists)
+                    println("---DataIntegrityViolationException---")
+                    println(e.message)
+                    ServiceResult.Failure(ReportError.UnknownError)
                } catch (e: Exception) {
+                    println("---Exception---")
+                    println(e.message)
                     ServiceResult.Failure(ReportError.UnknownError)
                }
           }
      }
 
-     fun updateReport(request: ReportRequest, userId: String): ServiceResult<ReporRes> {
+     fun updateReport(request: ReportRequest, memberRowId: Long): ServiceResult<ReporRes> {
           if (!caseNumberPattern.matches(request.caseNumber)) {
                return ServiceResult.Failure(ReportError.CaseNumberError)
           }
-          if (!reportRepository.existsByCaseNumberAndUserId(request.caseNumber, userId)) {
-               return ServiceResult.Failure(ReportError.NotExists)
+          if (!reportRepository.existsByCaseNumberAndUserId(request.caseNumber, memberRowId)) {
+               return ServiceResult.Failure(ReportError.AlreadyExists)
           }
           return tx.executeWithResult { status ->
                try {
-                    val id = reportRepository.update(request, userId)
+                    val id = reportRepository.update(request, memberRowId)
                     ServiceResult.Success(ReporRes(id))
                } catch (e: Exception) {
                     ServiceResult.Failure(ReportError.UnknownError)
