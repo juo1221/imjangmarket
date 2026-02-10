@@ -5,6 +5,7 @@ import com.example.imjangmarket.global.security.JwtProvider
 import com.example.imjangmarket.jooq.tables.references.MEMBER
 import com.example.imjangmarket.jooq.tables.references.REFRESH_TOKEN
 import com.example.imjangmarket.domain.auth.dto.SignupRequest
+import com.example.imjangmarket.domain.shop.repository.ShopRepository
 import com.example.imjangmarket.global.exception.AuthException
 
 import org.jooq.DSLContext
@@ -18,19 +19,23 @@ class AuthService(
      private val dsl: DSLContext,
      private val passwordEncoder: PasswordEncoder,
      private val jwtProvider: JwtProvider,
-     private val transaction: TransactionOperations
+     private val transaction: TransactionOperations,
+     private val shopRepository: ShopRepository
 ) {
 fun signup(request: SignupRequest) {
      val exists = dsl.fetchExists(MEMBER, MEMBER.USER_ID.eq(request.userId))
      if (exists) throw AuthException.DuplicateId()
      val encodedPassword = passwordEncoder.encode(request.password)
      transaction.execute {
-          dsl.insertInto(MEMBER)
+          val memberId = dsl.insertInto(MEMBER)
                .set(MEMBER.USER_ID, request.userId)
                .set(MEMBER.PASSWORD, encodedPassword)
                .set(MEMBER.NICKNAME, request.nickname)
                .set(MEMBER.ROLE, "USER")
-               .execute()
+               .returning(MEMBER.ID) // 1. 돌려받을 컬럼(PK)을 지정합니다.
+               .fetchOne()           // 2. 단일 행을 가져옵니다.
+               ?.id
+          shopRepository.save(memberId!!)
      }
 }
 

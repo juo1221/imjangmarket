@@ -22,15 +22,15 @@ class JwtProvider(
      val accessTokenValidTime = 1000L * 60 * 30 // 30분
      val refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7 // 7일
 
-     fun createAccessToken(id: Int, userId: String, role: String): String {
+     fun createAccessToken(id: Long, userId: String, role: String): String {
           return createToken(id, userId, role, accessTokenValidTime)
      }
 
-     fun createRefreshToken(id: Int, userId: String, role: String): String {
+     fun createRefreshToken(id: Long, userId: String, role: String): String {
           return createToken(id, userId, role, refreshTokenValidTime)
      }
 
-     private fun createToken(id: Int, userId: String, role: String, validTime: Long): String {
+     private fun createToken(id: Long, userId: String, role: String, validTime: Long): String {
           val now = Date()
           return Jwts.builder()
                .subject(userId)

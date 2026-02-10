@@ -31,7 +31,7 @@ class ReportRepository(
       * 보고서 저장
       * JSONB 덕분에 customFields가 아무리 늘어나도 쿼리는 변하지 않습니다.
       */
-     fun save(request: ReportRequest, userId: String): Int {
+     fun save(request: ReportRequest, userId: String): Long {
           val checklistJson = objectMapper.writeValueAsString(request.checklist)
           return dsl.insertInto(t)
                     .set(t.CASE_NUMBER, request.caseNumber)
@@ -51,7 +51,7 @@ class ReportRepository(
      /**
       * 보고서 업데이트
       */
-     fun update(request: ReportRequest, userId: String): Int {
+     fun update(request: ReportRequest, userId: String): Long {
           val checklistJson = objectMapper.writeValueAsString(request.checklist)
           return dsl.update(t)
                .set(t.ADDRESS, request.address)

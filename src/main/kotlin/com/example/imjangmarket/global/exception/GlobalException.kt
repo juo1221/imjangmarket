@@ -7,14 +7,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-@RestControllerAdvice
+/*@RestControllerAdvice
 class GlobalExceptionHandler {
      @ExceptionHandler(BusinessException::class)
      fun handleBusinessException(e: BusinessException) = ErrorResponse(e.message)
 
      @ExceptionHandler(Exception::class)
      fun handleAllException(e: Exception) = ErrorResponse("서버 내부 오류가 발생했습니다.")
-}
+}*/
 
 data class ErrorResponse(
      val message: String

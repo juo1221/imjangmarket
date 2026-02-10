@@ -84,7 +84,7 @@ class ReportService(
           return tx.executeWithResult { status ->
                try {
                     val id = reportRepository.delete(reportId)
-                    ServiceResult.Success(ReporRes(id))
+                    ServiceResult.Success(ReporRes(id.toLong()))
                } catch (e: Exception) {
                     ServiceResult.Failure(ReportError.UnknownError)
                }

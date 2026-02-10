@@ -10,6 +10,14 @@ import kotlin.jvm.java
 @Repository
 class ShopRepository(private val dsl: DSLContext) {
 
+     fun save(memberId: Long) {
+          dsl.insertInto(SHOP)
+               .set(SHOP.MEMBER_ID, memberId)
+               .set(SHOP.TOTAL_REPORT_COUNT, 0)
+               .set(SHOP.AVERAGE_RATING, 0.0.toBigDecimal())
+               .execute()
+     }
+
      fun findShopDetail(shopId:Long): ShopRes? {
           return dsl.select(
                SHOP.ID,
@@ -34,7 +42,7 @@ class ShopRepository(private val dsl: DSLContext) {
           )
                .from(SHOP)
                .join(MEMBER).on(SHOP.MEMBER_ID.eq(MEMBER.ID))
-               .where(SHOP.MEMBER_ID.eq(memberId.toInt()))
+               .where(SHOP.MEMBER_ID.eq(memberId))
                .fetchOneInto(ShopRes::class.java)
      }
 }

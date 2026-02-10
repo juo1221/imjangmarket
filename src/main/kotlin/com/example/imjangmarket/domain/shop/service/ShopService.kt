@@ -22,6 +22,9 @@ class ShopService(
                override val msg = "상점 정보를 찾을 수 없습니다."
           }
      }
+     fun save() {
+
+     }
      fun getShopDetail(shopId: Long): ServiceResult<ShopRes> {
           val shop = shopRepository.findShopDetail(shopId)
           return if (shop != null) ServiceResult.Success(shop) else ServiceResult.Failure(ShopError.NotExist)
