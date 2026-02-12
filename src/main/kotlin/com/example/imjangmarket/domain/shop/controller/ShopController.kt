@@ -1,22 +1,18 @@
 package com.example.imjangmarket.domain.shop.controller
 
-import com.example.imjangmarket.domain.shop.dto.ShopRes
-import com.example.imjangmarket.domain.shop.error.ShopError
 import com.example.imjangmarket.domain.shop.service.ShopService
-import com.example.imjangmarket.global.api.ApiResponse
-import com.example.imjangmarket.global.result.toApiResponse
+import com.example.imjangmarket.global.result.toResponseEntity
 import com.example.imjangmarket.global.security.CustomUserDetails
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/shops")
+@RequestMapping("/api/shop")
 @Tag(name = "shop", description = "상점 관리 API")
 class ShopController(private val shopService: ShopService) {
 
@@ -26,7 +22,7 @@ class ShopController(private val shopService: ShopService) {
           security = []
      )
      @GetMapping("/{shopId}")
-     fun getShopDetail(@PathVariable shopId: Long): ApiResponse<ShopRes, ShopError>  = shopService.getShopDetail(shopId).toApiResponse() as ApiResponse<ShopRes, ShopError>
+     fun getShopDetail(@PathVariable shopId: Long)= shopService.getShopDetail(shopId).toResponseEntity()
 
 
      @Operation(
@@ -34,7 +30,5 @@ class ShopController(private val shopService: ShopService) {
           description = "로그인한 사용자의 상점 정보를 조회합니다.",
      )
      @GetMapping("/me")
-     fun getMyShop(@AuthenticationPrincipal userDetails: CustomUserDetails): ApiResponse<ShopRes, ShopError>  {
-          return  shopService.getMyShop(userDetails.id).toApiResponse() as ApiResponse<ShopRes, ShopError>
-     }
+     fun getMyShop(@AuthenticationPrincipal userDetails: CustomUserDetails) =  shopService.getMyShop(userDetails.id).toResponseEntity()
 }

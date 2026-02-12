@@ -3,10 +3,15 @@ package com.example.imjangmarket.global.config
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.media.Content
+import io.swagger.v3.oas.models.media.MediaType
+import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springdoc.core.customizers.OpenApiCustomizer
+import org.springdoc.core.customizers.OperationCustomizer
+import org.springdoc.core.models.GroupedOpenApi
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -33,6 +38,34 @@ class OpenApiConfig {
                                    .name("Authorization")
                          )
                )
+     }
+
+     @Bean
+     fun errorResponseCustomizer(): OperationCustomizer {
+          return OperationCustomizer { operation, handlerMethod ->
+               // 메서드에 @ApiErrorDescription이 붙어 있는지 확인
+               val annotation = handlerMethod.getMethodAnnotation(ApiErrorDescription::class.java)
+
+               annotation?.let {
+                    val errorClass = it.errorClass.java
+
+                    // 400 Bad Request 응답 정의 생성
+                    val apiResponse = io.swagger.v3.oas.models.responses.ApiResponse().apply {
+                         description = "비즈니스 로직 에러 (코드 확인 필수)"
+                         content = Content().addMediaType(
+                              "application/json",
+                              MediaType().schema(
+                                   // 해당 에러 클래스의 스키마를 참조하도록 설정
+                                   Schema<Any>().`$ref`("#/components/schemas/${errorClass.simpleName}")
+                              )
+                         )
+                    }
+
+                    // Swagger Operation에 응답 추가
+                    operation.responses.addApiResponse("400", apiResponse)
+               }
+               operation
+          }
      }
 
      @Bean
