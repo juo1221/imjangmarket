@@ -1,22 +1,24 @@
 package com.example.imjangmarket.global.api
 
-data class ApiResponse<out T> (
+import com.example.imjangmarket.global.exception.BaseError
+
+data class ApiResponse<out T, out E : BaseError> (
      val success:Boolean,
      val data: T? = null,
-     val error: ErrorResponse? = null
+     val error: ErrorResponse<E>? = null
 ) {
      companion object {
-          fun <T> success(data:T?): ApiResponse<T> = ApiResponse(true,data)
-          fun error(code:String, msg:String, detail:Any? =null): ApiResponse<Nothing> =
+          fun <T> success(data:T?): ApiResponse<T, Nothing> = ApiResponse(true,data)
+          fun <E : BaseError> error(err:E, detail:Any? =null): ApiResponse<Nothing, E> =
                ApiResponse(
                     success = false,
-                    error = ErrorResponse(code, msg, detail)
+                    error = ErrorResponse(err, err.msg, detail)
                )
      }
 }
 
-data class ErrorResponse(
-     val code: String,
+data class ErrorResponse<out E : BaseError>(
+     val code: E,
      val message: String,
-     val details: Any?
+     val details: Any? = null
 )

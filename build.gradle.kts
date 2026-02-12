@@ -41,6 +41,8 @@ dependencies {
      "jooqGenerator"("org.jooq:jooq-codegen:${jooqVersion}")
      // Spring Security
      implementation("org.springframework.boot:spring-boot-starter-security")
+     // log
+     implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
 
      // JWT 관련 라이브러리 (0.12.x 버전 기준)
      implementation("io.jsonwebtoken:jjwt-api:0.12.5")

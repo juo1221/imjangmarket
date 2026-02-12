@@ -1,27 +1,25 @@
 package com.example.imjangmarket.global.exception
 
 import com.example.imjangmarket.global.api.ApiResponse
-import org.springframework.dao.DataIntegrityViolationException
+import com.example.imjangmarket.global.utils.Loggable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-/*@RestControllerAdvice
-class GlobalExceptionHandler {
-     @ExceptionHandler(BusinessException::class)
-     fun handleBusinessException(e: BusinessException) = ErrorResponse(e.message)
-
+@RestControllerAdvice
+class GlobalExceptionHandler: Loggable {
      @ExceptionHandler(Exception::class)
-     fun handleAllException(e: Exception) = ErrorResponse("서버 내부 오류가 발생했습니다.")
-}*/
-
-data class ErrorResponse(
-     val message: String
-)
+     fun handleUnexpectedException(e: Exception): ResponseEntity<ApiResponse<Nothing, CommonError>> {
+          log.info{"알 수 없는 서버 에러 발생: $e"}
+          return ResponseEntity
+               .status(HttpStatus.INTERNAL_SERVER_ERROR)
+               .body(ApiResponse.error(CommonError.InternalServerError))
+     }
+}
 
 interface BaseError {
      val code:String
      val msg:String
-     fun toApiResponse(): ApiResponse<Nothing> = ApiResponse.error(code,msg)
+     fun toApiResponse(): ApiResponse<Nothing, BaseError> = ApiResponse.error(this)
 }

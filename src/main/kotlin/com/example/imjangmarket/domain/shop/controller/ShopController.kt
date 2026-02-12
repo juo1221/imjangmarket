@@ -1,6 +1,7 @@
 package com.example.imjangmarket.domain.shop.controller
 
 import com.example.imjangmarket.domain.shop.dto.ShopRes
+import com.example.imjangmarket.domain.shop.error.ShopError
 import com.example.imjangmarket.domain.shop.service.ShopService
 import com.example.imjangmarket.global.api.ApiResponse
 import com.example.imjangmarket.global.result.toApiResponse
@@ -25,7 +26,7 @@ class ShopController(private val shopService: ShopService) {
           security = []
      )
      @GetMapping("/{shopId}")
-     fun getShopDetail(@PathVariable shopId: Long): ApiResponse<ShopRes>  = shopService.getShopDetail(shopId).toApiResponse()
+     fun getShopDetail(@PathVariable shopId: Long): ApiResponse<ShopRes, ShopError>  = shopService.getShopDetail(shopId).toApiResponse() as ApiResponse<ShopRes, ShopError>
 
 
      @Operation(
@@ -33,7 +34,7 @@ class ShopController(private val shopService: ShopService) {
           description = "로그인한 사용자의 상점 정보를 조회합니다.",
      )
      @GetMapping("/me")
-     fun getMyShop(@AuthenticationPrincipal userDetails: CustomUserDetails): ApiResponse<ShopRes>  {
-          return  shopService.getMyShop(userDetails.id).toApiResponse()
+     fun getMyShop(@AuthenticationPrincipal userDetails: CustomUserDetails): ApiResponse<ShopRes, ShopError>  {
+          return  shopService.getMyShop(userDetails.id).toApiResponse() as ApiResponse<ShopRes, ShopError>
      }
 }
