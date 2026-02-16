@@ -1,12 +1,11 @@
 package com.example.imjangmarket.domain.report.service
 
 import com.example.imjangmarket.domain.report.dto.ReporRes
-import com.example.imjangmarket.domain.report.dto.ReportRequest
+import com.example.imjangmarket.domain.report.dto.ReportReq
 import com.example.imjangmarket.domain.report.error.ReportError
 import com.example.imjangmarket.domain.report.repository.ReportRepository
 import com.example.imjangmarket.domain.shop.error.ShopError
 import com.example.imjangmarket.domain.shop.repository.ShopRepository
-import com.example.imjangmarket.domain.shop.service.ShopService
 import com.example.imjangmarket.global.result.ServiceResult
 import com.example.imjangmarket.global.utils.Loggable
 import com.example.imjangmarket.global.utils.executeWithResult
@@ -27,7 +26,7 @@ class ReportService(
       * @param request 사용자가 입력한 보고서 데이터
       * @param memberRowId 현재 로그인한 사용자의 ID
       */
-     fun createReport(request: ReportRequest, memberRowId: Long): ServiceResult<ReporRes> {
+     fun createReport(request: ReportReq, memberRowId: Long): ServiceResult<ReporRes> {
           if (!caseNumberPattern.matches(request.caseNumber)) {
                return ServiceResult.Failure(ReportError.InvalidCaseNumber)
           }
@@ -51,7 +50,7 @@ class ReportService(
           }
      }
 
-     fun updateReport(request: ReportRequest, memberRowId: Long): ServiceResult<ReporRes> {
+     fun updateReport(request: ReportReq, memberRowId: Long): ServiceResult<ReporRes> {
           if (!caseNumberPattern.matches(request.caseNumber)) {
                return ServiceResult.Failure(ReportError.InvalidCaseNumber)
           }

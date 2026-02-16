@@ -1,6 +1,6 @@
 package com.example.imjangmarket.domain.report.repository
 
-import com.example.imjangmarket.domain.report.dto.ReportRequest
+import com.example.imjangmarket.domain.report.dto.ReportReq
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.jooq.DSLContext
@@ -31,7 +31,7 @@ class ReportRepository(
       * 보고서 저장
       * JSONB 덕분에 customFields가 아무리 늘어나도 쿼리는 변하지 않습니다.
       */
-     fun save(request: ReportRequest, memberRowId: Long, shopId:Long): Long? {
+     fun save(request: ReportReq, memberRowId: Long, shopId:Long): Long? {
           val checklistJson = objectMapper.writeValueAsString(request.checklist)
           return dsl.insertInto(REPORT)
                     .set(REPORT.CASE_NUMBER, request.caseNumber)
@@ -51,7 +51,7 @@ class ReportRepository(
      /**
       * 보고서 업데이트
       */
-     fun update(request: ReportRequest, memberRowId: Long): Long {
+     fun update(request: ReportReq, memberRowId: Long): Long {
           val checklistJson = objectMapper.writeValueAsString(request.checklist)
           return dsl.update(REPORT)
                .set(REPORT.ADDRESS, request.address)
