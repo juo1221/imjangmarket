@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
+import kotlin.jvm.java
 
 @Configuration
 class OpenApiConfig {
@@ -51,71 +52,6 @@ class OpenApiConfig {
                          responses.addApiResponse("500", ApiResponse().description("서버 내부 오류가 발생했습니다."))
                     }
                }
-          }
-     }
-
-     @Bean
-     @Order(Ordered.LOWEST_PRECEDENCE) // Ensure this customizer runs last
-     fun schemaFilterCustomizer(): OpenApiCustomizer {
-          return OpenApiCustomizer { openApi ->
-               val schemas = openApi.components.schemas ?: return@OpenApiCustomizer
-
-               // 1. Identify top-level schemas
-               val topLevelSchemas = schemas.filterKeys { name -> isTopLevel(name) }
-
-               // 2. Inline nested schemas into top-level schemas
-               topLevelSchemas.values.forEach { schema ->
-                    inlineNestedSchemas(schema, schemas)
-               }
-
-               // 3. Remove non-top-level schemas
-               schemas.keys.retainAll(topLevelSchemas.keys)
-          }
-     }
-
-     private fun isTopLevel(name: String): Boolean {
-          val topLevelSuffixes = listOf("Request", "Res", "Response", "Dto") // Added "Dto"
-          val errorPrefix = "Error_"
-          return topLevelSuffixes.any { name.endsWith(it) } || name.startsWith(errorPrefix)
-     }
-
-     private fun inlineNestedSchemas(schema: Schema<*>, schemas: Map<String, Schema<*>>) {
-          schema.properties?.values?.forEach { property ->
-               inlineProperty(property, schemas)
-          }
-          if (schema.items != null) {
-               inlineProperty(schema.items, schemas)
-          }
-     }
-
-     @Suppress("UNCHECKED_CAST")
-     private fun inlineProperty(property: Schema<*>, schemas: Map<String, Schema<*>>) {
-          if (property.`$ref` != null) {
-               val refName = property.`$ref`.substringAfterLast("/")
-               // Only inline if the referenced schema is NOT a top-level schema
-               if (!isTopLevel(refName)) {
-                    val referencedSchema = schemas[refName]
-                    if (referencedSchema != null) {
-                         // Cast to Schema<Any> to avoid type mismatch errors when copying properties
-                         val mutableProperty = property as Schema<Any>
-                         val mutableReferenced = referencedSchema as Schema<Any>
-
-                         mutableProperty.`$ref` = null
-                         mutableProperty.type = mutableReferenced.type
-                         mutableProperty.properties = mutableReferenced.properties
-                         mutableProperty.items = mutableReferenced.items
-                         mutableProperty.description = mutableReferenced.description
-                         mutableProperty.format = mutableReferenced.format
-                         mutableProperty.example = mutableReferenced.example
-                         mutableProperty.enum = mutableReferenced.enum
-                         mutableProperty.required = mutableReferenced.required
-                         
-                         // Recursively inline
-                         inlineNestedSchemas(mutableProperty, schemas)
-                    }
-               }
-          } else {
-               inlineNestedSchemas(property, schemas)
           }
      }
 
