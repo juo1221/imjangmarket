@@ -11,9 +11,9 @@ build/
 *.log
 .kotlin/
 
-# 민감한 정보 (이전에 말씀드린 DB 정보 파일들)
 gradle.properties
 application.properties
+application-dev.properties
 src/test/resources/application-test.yml
 src/test/resources/schema.sql
 

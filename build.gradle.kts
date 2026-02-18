@@ -26,15 +26,13 @@ repositories {
 extra["jooq.version"] = jooqVersion
 
 dependencies {
+     implementation("org.jetbrains.kotlin:kotlin-reflect")
+     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
      implementation("org.springframework.boot:spring-boot-starter-web")
      implementation("org.springframework.boot:spring-boot-starter-validation")
      implementation("org.flywaydb:flyway-database-postgresql")
      implementation("org.springframework.boot:spring-boot-starter-jooq")
      implementation("org.postgresql:postgresql")
-     // 실행용 jOOQ 버전 고정
-     implementation("org.jooq:jooq:${jooqVersion}")
-     implementation("org.jooq:jooq-meta:${jooqVersion}")
-     implementation("org.jooq:jooq-codegen:${jooqVersion}")
      // jOOQ 생성기용 드라이버 및 jOOQ 라이브러리 버전 강제 일치
      "jooqGenerator"("org.postgresql:postgresql:42.7.2")
      "jooqGenerator"("org.jooq:jooq-meta:${jooqVersion}")
@@ -60,13 +58,13 @@ dependencies {
      implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
      // 스웨거
      implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
-     // Kotlin 전용 모듈 (Data Class 등의 직렬화 지원)
-     implementation("org.springdoc:springdoc-openapi-starter-common:2.8.3")
 }
 jooq {
      version.set(jooqVersion)
      configurations {
           create("main") {
+               // Ensure jOOQ generated sources exist for compilation (fresh checkout friendly)
+               generateSchemaSourceOnCompilation.set(true)
                jooqConfiguration.apply {
                     setLogging(org.jooq.meta.jaxb.Logging.WARN)
 
