@@ -1,6 +1,10 @@
 package com.example.imjangmarket.domain.report.repository
 
+import com.example.imjangmarket.domain.report.dto.PurchaseStatusDto
 import com.example.imjangmarket.domain.report.dto.ReportReq
+import com.example.imjangmarket.domain.report.dto.ReportDetailRes
+import com.example.imjangmarket.domain.report.dto.ReportSimpleRes
+import com.example.imjangmarket.jooq.tables.references.PURCHASE
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.jooq.DSLContext
@@ -8,6 +12,7 @@ import org.jooq.JSONB
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import com.example.imjangmarket.jooq.tables.references.REPORT
+import kotlin.jvm.java
 
 
 @Repository
@@ -26,7 +31,19 @@ class ReportRepository(
                     .and(REPORT.MEMBER_ID.eq(memberRowId))
           )
      }
-
+     fun findPurchaseStatus(reportId: Long, memberRowId: Long): PurchaseStatusDto? {
+          return dsl.select(
+               REPORT.ID,
+               PURCHASE.ID.`as`("purchaseId"),
+               REPORT.MEMBER_ID.eq(memberRowId).`as`("isOwner")
+          )
+               .from(REPORT)
+               .leftJoin(PURCHASE)
+               .on(PURCHASE.REPORT_ID.eq(REPORT.ID))
+               .and(PURCHASE.BUYER_ID.eq(memberRowId))
+               .where(REPORT.ID.eq(reportId))
+               .fetchOneInto(PurchaseStatusDto::class.java)
+     }
      /**
       * 보고서 저장
       * JSONB 덕분에 customFields가 아무리 늘어나도 쿼리는 변하지 않습니다.
@@ -74,5 +91,37 @@ class ReportRepository(
                .deleteFrom(REPORT)
                .where(REPORT.CASE_NUMBER.eq("$reportId"))
                .execute()
+     }
+
+     /** 보고서 조회*/
+     fun listByShopId(shopId:Long): List<ReportSimpleRes> {
+          return dsl.select(
+               REPORT.ID,
+               REPORT.CASE_NUMBER,
+               REPORT.SHOP_ID,
+               REPORT.CREATED_AT,
+               REPORT.UPDATED_AT
+          )
+               .from(REPORT)
+               .where(REPORT.SHOP_ID.eq(shopId))
+               .fetchInto(ReportSimpleRes::class.java)
+     }
+     fun listByCaseNumber(caseNumber:String): List<ReportSimpleRes> {
+          return dsl.select(
+               REPORT.ID,
+               REPORT.CASE_NUMBER,
+               REPORT.SHOP_ID,
+               REPORT.CREATED_AT,
+               REPORT.UPDATED_AT
+          )
+               .from(REPORT)
+               .where(REPORT.CASE_NUMBER.eq(caseNumber))
+               .fetchInto(ReportSimpleRes::class.java)
+     }
+     /** 보고서 상세 조회*/
+     fun findById(id:Long): ReportDetailRes? {
+          return dsl.selectFrom(REPORT)
+               .where(REPORT.ID.eq(id))
+               .fetchOneInto(ReportDetailRes::class.java)
      }
 }

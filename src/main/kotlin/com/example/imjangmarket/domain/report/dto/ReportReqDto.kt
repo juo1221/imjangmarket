@@ -30,3 +30,7 @@ data class DynamicChecklist(
       */
      val customFields: Map<String, FieldEvaluation> = emptyMap()
 )
+
+data class ReportSearchReq(
+     val caseNumber: String
+)
