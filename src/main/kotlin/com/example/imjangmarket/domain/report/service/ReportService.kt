@@ -72,42 +72,41 @@ class ReportService(
                     if (id === null) ServiceResult.Failure(ReportError.AlreadyExists)
                     else ServiceResult.Success(IdFieldDto(id))
                } catch (e: DataIntegrityViolationException) {
-                    log.info { "사건번호 중복 또는 DB 제약 조건 위반: ${request.caseNumber} ,$e" }
+                    log.error { "사건번호 중복 또는 DB 제약 조건 위반: ${request.caseNumber} ,$e" }
                     ServiceResult.Failure(ReportError.Unknown)
                } catch (e: Exception) {
-                    log.info { "예기치못한 에러 발생: $e" }
+                    log.error { "예기치못한 에러 발생: $e" }
                     ServiceResult.Failure(ReportError.Unknown)
                }
           }
      }
 
      fun updateReport(request: ReportReq, memberRowId: Long): ServiceResult<IdFieldDto> {
-          if (!caseNumberPattern.matches(request.caseNumber)) {
-               return ServiceResult.Failure(ReportError.InvalidCaseNumber)
-          }
-          if (!reportRepository.existsByCaseNumberAndUserId(request.caseNumber, memberRowId)) {
-               return ServiceResult.Failure(ReportError.AlreadyExists)
-          }
+          val report = reportRepository.findByCaseNumber(request.caseNumber, memberRowId) ?: return ServiceResult.Failure(ReportError.NotFound)
+          if(report.memberId != memberRowId) return ServiceResult.Failure(ReportError.NoAuthority)
+          if(report.caseNumber != request.caseNumber) return ServiceResult.Failure(ReportError.NotChangeableCaseNumber)
+          if(report.address != request.address) return ServiceResult.Failure(ReportError.NotChangeableAddress)
           return tx.executeWithResult { status ->
                try {
-                    val id = reportRepository.update(request, memberRowId)
+                    val id = reportRepository.update(request,memberRowId)
                     ServiceResult.Success(IdFieldDto(id))
                } catch (e: Exception) {
-                    ServiceResult.Failure(ReportError.InvalidCaseNumber)
+                    log.error { "보고서 업데이트 중 에러 발생: $e" }
+                    ServiceResult.Failure(ReportError.Unknown)
                }
           }
      }
 
      fun deleteReport(reportId: Long, memberRowId: Long): ServiceResult<IdFieldDto> {
           val report = reportRepository.findById(reportId) ?: return ServiceResult.Failure(ReportError.DeletedReport)
-          if(report.memberId != memberRowId) return ServiceResult.Failure(ReportError.NoDeleteAuthority)
+          if(report.memberId != memberRowId) return ServiceResult.Failure(ReportError.NoAuthority)
           return tx.executeWithResult { status ->
                try {
                     val id = reportRepository.delete(reportId)
                     if(id == 0) throw Exception("데이터 정합성 오류")
                     else ServiceResult.Success(IdFieldDto(id.toLong()))
                } catch (e: Exception) {
-                    log.info { "예기치못한 에러 발생: $e" }
+                    log.error { "보고서 삭제 중 예기치못한 에러 발생: $e" }
                     ServiceResult.Failure(ReportError.Unknown)
                }
           }

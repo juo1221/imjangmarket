@@ -68,16 +68,18 @@ class ReportRepository(
      /**
       * 보고서 업데이트
       */
-     fun update(request: ReportReq, memberRowId: Long): Long {
+     fun update(request: ReportReq, memberRowId:Long): Long {
+          println("request.caseNum: ${request.caseNumber}")
+          println("request.memberRowId: $memberRowId")
           val checklistJson = objectMapper.writeValueAsString(request.checklist)
           return dsl.update(REPORT)
-               .set(REPORT.ADDRESS, request.address)
                .set(REPORT.CHECKLIST, JSONB.valueOf(checklistJson)) // 전체 체크리스트를 JSONB로 저장
                .set(REPORT.OVERALL_REVIEW, request.overallReview)
                .set(REPORT.CAUTION_NOTES, request.cautionNotes)
                .set(REPORT.PHOTO_URLS, request.photoUrls.toTypedArray())
                .set(REPORT.CREATED_AT, LocalDateTime.now())
                .set(REPORT.UPDATED_AT, LocalDateTime.now())
+               .where(REPORT.CASE_NUMBER.eq(request.caseNumber)).and(REPORT.MEMBER_ID.eq(memberRowId))
                .returning(REPORT.ID) // [핵심] 생성된 ID를 반환하도록 지정
                .fetchOne()      // 한 건의 레코드를 가져옴
                ?.id ?: throw RuntimeException("수정 실패")
@@ -122,6 +124,11 @@ class ReportRepository(
      fun findById(id:Long): ReportDetailRes? {
           return dsl.selectFrom(REPORT)
                .where(REPORT.ID.eq(id))
+               .fetchOneInto(ReportDetailRes::class.java)
+     }
+     fun findByCaseNumber(caseNumber: String, memberRowId: Long): ReportDetailRes? {
+          return dsl.selectFrom(REPORT)
+               .where(REPORT.CASE_NUMBER.eq(caseNumber)).and(REPORT.MEMBER_ID.eq(memberRowId))
                .fetchOneInto(ReportDetailRes::class.java)
      }
 }

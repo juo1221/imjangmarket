@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler: Loggable {
      @ExceptionHandler(Exception::class)
      fun handleUnexpectedException(e: Exception): ResponseEntity<ApiResponse<Nothing>> {
-          log.info{"알 수 없는 서버 에러 발생: $e"}
+          log.error{"알 수 없는 서버 에러 발생: $e"}
           val error = CommonError.InternalServerError
           return ResponseEntity
                .status(HttpStatus.INTERNAL_SERVER_ERROR)

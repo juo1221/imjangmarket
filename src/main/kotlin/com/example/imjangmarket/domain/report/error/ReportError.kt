@@ -17,7 +17,7 @@ import com.example.imjangmarket.global.exception.BaseError
      }
      object Unknown : ReportError {
           override val code: String = "REPORT_004"
-          override val msg: String = "보고서 처리 중 알 수 없는 오류가 발생했습니다."
+          override val msg: String = "보고서 처리 중 알 수 없는 오류가 발생했습니다. 잠시후 다시 시도해 주세요."
      }
       object EmptyList : ReportError {
            override val code: String = "REPORT_005"
@@ -35,8 +35,16 @@ import com.example.imjangmarket.global.exception.BaseError
            override val code: String = "REPORT_007"
            override val msg: String = "이미 삭제된 보고서입니다."
       }
-      object NoDeleteAuthority : ReportError {
+      object NoAuthority : ReportError {
            override val code: String = "REPORT_008"
-           override val msg: String = "보고서를 삭제할 권한이 없습니다."
+           override val msg: String = "권한이 없습니다."
+      }
+      object NotChangeableCaseNumber : ReportError {
+           override val code: String = "REPORT_009"
+           override val msg: String = "사건번호는 변경할 수 없습니다."
+      }
+      object NotChangeableAddress : ReportError {
+           override val code: String = "REPORT_0010"
+           override val msg: String = "주소는 변경할 수 없습니다."
       }
 }
