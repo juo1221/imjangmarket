@@ -24,7 +24,13 @@ class ReportService(
      private val caseNumberPattern = Regex("^[0-9]{4}타경[0-9]+$")
 
      fun listByShopId(shopId: Long): ServiceResult<ReportListRes> {
-          val reportRes = reportRepository.listByShopId(shopId)
+          val reportRes = reportRepository.findListByShopId(shopId)
+          return if (reportRes.isNotEmpty()) ServiceResult.Success(ReportListRes(reportRes)) else ServiceResult.Failure(
+               ReportError.EmptyList
+          )
+     }
+     fun getListAll(): ServiceResult<ReportListRes> {
+          val reportRes = reportRepository.findListAll()
           return if (reportRes.isNotEmpty()) ServiceResult.Success(ReportListRes(reportRes)) else ServiceResult.Failure(
                ReportError.EmptyList
           )
@@ -34,7 +40,7 @@ class ReportService(
           if (!caseNumberPattern.matches(caseNumber)) {
                return ServiceResult.Failure(ReportError.InvalidCaseNumber)
           }
-          val reportRes = reportRepository.listByCaseNumber(caseNumber)
+          val reportRes = reportRepository.findListByCaseNumber(caseNumber)
           return if (reportRes.isNotEmpty()) ServiceResult.Success(ReportListRes(reportRes)) else ServiceResult.Failure(
                ReportError.EmptyList
           )
@@ -43,7 +49,7 @@ class ReportService(
      fun getReportWithAuthority(reportId: Long, memberRowId: Long): ServiceResult<ReportDetailRes> {
           val result = reportRepository.findPurchaseStatus(reportId, memberRowId) ?: return ServiceResult.Failure(error = ReportError.NotFound)
           return if (result.isOwner || result.purchaseId != null) {
-               val reportRes = reportRepository.findById(reportId) ?: run {
+               val reportRes = reportRepository.findOneById(reportId) ?: run {
                     log.error { "데이터 정합성 오류" }
                     return ServiceResult.Failure(error = ReportError.SystemInconsistency)
                }
@@ -82,7 +88,7 @@ class ReportService(
      }
 
      fun updateReport(request: ReportReq, memberRowId: Long): ServiceResult<IdFieldDto> {
-          val report = reportRepository.findByCaseNumber(request.caseNumber, memberRowId) ?: return ServiceResult.Failure(ReportError.NotFound)
+          val report = reportRepository.findOneByCaseNumber(request.caseNumber, memberRowId) ?: return ServiceResult.Failure(ReportError.NotFound)
           if(report.memberId != memberRowId) return ServiceResult.Failure(ReportError.NoAuthority)
           if(report.caseNumber != request.caseNumber) return ServiceResult.Failure(ReportError.NotChangeableCaseNumber)
           if(report.address != request.address) return ServiceResult.Failure(ReportError.NotChangeableAddress)
@@ -98,7 +104,7 @@ class ReportService(
      }
 
      fun deleteReport(reportId: Long, memberRowId: Long): ServiceResult<IdFieldDto> {
-          val report = reportRepository.findById(reportId) ?: return ServiceResult.Failure(ReportError.DeletedReport)
+          val report = reportRepository.findOneById(reportId) ?: return ServiceResult.Failure(ReportError.DeletedReport)
           if(report.memberId != memberRowId) return ServiceResult.Failure(ReportError.NoAuthority)
           return tx.executeWithResult { status ->
                try {

@@ -29,6 +29,10 @@ class ReportController(
      fun listByCaseNumber(@RequestBody req: ReportSearchReq) =
           reportService.getListByCaseNumber(req.caseNumber).toResponseEntity()
 
+     @Operation(summary = "모든 보고서 리스트 조회 api")
+     @PostMapping("/list/all")
+     fun listByCaseNumber() = reportService.getListAll().toResponseEntity()
+
      @Operation(summary = "보고서 상세 조회 api")
      @GetMapping("/{reportId}")
      fun getReportDetail(
