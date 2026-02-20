@@ -89,7 +89,7 @@ class ReportRepository(
      fun delete(reportId: Long): Int {
           return dsl
                .deleteFrom(REPORT)
-               .where(REPORT.CASE_NUMBER.eq("$reportId"))
+               .where(REPORT.ID.eq(reportId))
                .execute()
      }
 

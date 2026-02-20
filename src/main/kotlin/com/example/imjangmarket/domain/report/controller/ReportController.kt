@@ -1,5 +1,6 @@
 package com.example.imjangmarket.domain.report.controller
 
+import com.example.imjangmarket.domain.report.dto.ReportDeleteReq
 import com.example.imjangmarket.domain.report.dto.ReportReq
 import com.example.imjangmarket.domain.report.dto.ReportSearchReq
 import com.example.imjangmarket.domain.report.service.ReportService
@@ -51,5 +52,8 @@ class ReportController(
 
      @Operation(summary = "보고서 삭제 api")
      @PostMapping("/dp")
-     fun deleteReport(reportId:Long) = reportService.deleteReport(reportId).toResponseEntity()
+     fun deleteReport(
+          @RequestBody request: ReportDeleteReq,
+          @AuthenticationPrincipal userDetails: CustomUserDetails
+     ) = reportService.deleteReport(request.reportId, userDetails.id).toResponseEntity()
 }

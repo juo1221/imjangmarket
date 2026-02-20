@@ -98,12 +98,16 @@ class ReportService(
           }
      }
 
-     fun deleteReport(reportId: Long): ServiceResult<IdFieldDto> {
+     fun deleteReport(reportId: Long, memberRowId: Long): ServiceResult<IdFieldDto> {
+          val report = reportRepository.findById(reportId) ?: return ServiceResult.Failure(ReportError.DeletedReport)
+          if(report.memberId != memberRowId) return ServiceResult.Failure(ReportError.NoDeleteAuthority)
           return tx.executeWithResult { status ->
                try {
                     val id = reportRepository.delete(reportId)
-                    ServiceResult.Success(IdFieldDto(id.toLong()))
+                    if(id == 0) throw Exception("데이터 정합성 오류")
+                    else ServiceResult.Success(IdFieldDto(id.toLong()))
                } catch (e: Exception) {
+                    log.info { "예기치못한 에러 발생: $e" }
                     ServiceResult.Failure(ReportError.Unknown)
                }
           }

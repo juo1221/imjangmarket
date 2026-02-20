@@ -34,3 +34,6 @@ data class DynamicChecklist(
 data class ReportSearchReq(
      val caseNumber: String
 )
+data class ReportDeleteReq(
+     val reportId: Long
+)

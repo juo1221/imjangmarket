@@ -31,4 +31,12 @@ import com.example.imjangmarket.global.exception.BaseError
            override val code: String = "ERR-RPT-5001"
            override val msg: String = "서비스 오류가 발생했습니다. (에러 코드: ERR-RPT-5001)"
       }
+      object DeletedReport : ReportError {
+           override val code: String = "REPORT_007"
+           override val msg: String = "이미 삭제된 보고서입니다."
+      }
+      object NoDeleteAuthority : ReportError {
+           override val code: String = "REPORT_008"
+           override val msg: String = "보고서를 삭제할 권한이 없습니다."
+      }
 }
